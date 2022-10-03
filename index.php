@@ -67,8 +67,8 @@ class Api
 					}
 
 					$params = array_merge($params, $matches);
-					print_r($params);
 					$response = call_user_func_array([new $target['class'], $target['method']], $params);
+					print_r($params);
 					break;
 				}
 			}
