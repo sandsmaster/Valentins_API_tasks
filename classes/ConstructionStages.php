@@ -1,11 +1,11 @@
 <?php
 
+/**
+ * 	Checks for set error flags from $errors
+ *	@param array $errors array(str => bool) - array of error flags
+ *	@return array()|false - array for error / false for no errors
+ */
 function validate_loop($errors){
-	/*	Checks for set error flags from $errors
-
-		@param array $errors array(str => bool) - array of error flags
-		@return => array() / false - array for error / false for no errors
-	*/
 	foreach ($errors as $key => $value) {
 		if ($value){
 			return ["ERROR", $key];
@@ -16,12 +16,12 @@ function validate_loop($errors){
 }
 
 
+/** 
+ *  Used to validate input class
+ *	@param ConstructionStagesCreate|ConstructionStagesPatch $data The input data
+ *	@return true|array() ["ERROR", error message] is the error message
+ */
 function validate_input($data){
-	/* 	Used to validate input class
-
-		@param ConstructionStagesCreate/ConstructionStagesPatch $data The input data
-		@return true/["ERROR", error message]
-	*/
 
 	# dictionary for errors linked with each field in $data
 	$field_checks = [
@@ -65,10 +65,12 @@ function validate_input($data){
 }
 
 
+/**
+ * 	Used to calculate $data->duration
+ *	@param ConstructionStagesCreate|ConstructionStagesPatch $data The input data
+ * 	@return null|int The duration calculated
+ */
 function calculate_additional_data($data){
-	/*	Used to calculate $data->duration
-		@param ConstructionStagesCreate/ConstructionStagesPatch $data The input data
-	*/
 
 
 	// check if duration can be calculated
@@ -89,23 +91,25 @@ function calculate_additional_data($data){
 	switch ($data->durationUnit) {	# calculate duration
 		case 'DAYS':
 			$a_day = 60*60*24;	# in seconds
-			$data->duration = round($diff / $a_day, 2, PHP_ROUND_HALF_DOWN);
+			$data->duration = (int)round($diff / $a_day, 2, PHP_ROUND_HALF_DOWN);
 			break;
 		
 		case 'HOURS':
 			$an_hour = 60*60;	# in seconds
-			$data->duration = round($diff / $an_hour, 2, PHP_ROUND_HALF_DOWN);
+			$data->duration = (int)round($diff / $an_hour, 2, PHP_ROUND_HALF_DOWN);
 			break;
 
 		case 'WEEKS':
 			$a_week = 60*60*24*7; # in seconds
-			$data->duration = round($diff / $a_week, 2, PHP_ROUND_HALF_DOWN);
+			$data->duration = (int)round($diff / $a_week, 2, PHP_ROUND_HALF_DOWN);
 			break;
 
 		default:
 			echo "There must be something wrong with the durationUnit. Please check";
 			break;
 	}
+
+	return $data->duration
 }
 
 
@@ -185,8 +189,6 @@ class ConstructionStages
 			calculate_additional_data($data);
 		}
 
-		return $input_validation;
-
 		$stmt = $this->db->prepare("
 			UPDATE construction_stages
 			    SET name = :name, 
@@ -212,6 +214,9 @@ class ConstructionStages
 			'status' => $data->status,
 		]);
 		return $this->getSingle($this->db->lastInsertId());
+	
+		
+
 	}
 
 	public function delete($id)
